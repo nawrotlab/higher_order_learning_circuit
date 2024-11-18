@@ -4,14 +4,22 @@ from input import network_input
 
 
 def sigmoid_DAN(x,max_activation):
+    #z = np.exp(-x * 0.05)
     z = 2000*np.exp(-x * 2)
     sig_DAN = (1 / (1 + z)) * max_activation
-
     return sig_DAN
 
+def sigmoid_CO(x,max_activation):
+    z = 10000000*np.exp(-x * 0.5)
+    sig_CO = (1 / (1 + z)) * max_activation
+    return sig_CO
+'''
+x = np.arange(0,40)
+plt.plot(x,sigmoid_CO(x,40))
+plt.show()
+'''
 
-
-def single_trials_sim(num_KC,KC_baseline,odor_activation,odor,w1_init,w2_init,w3_init,w1_connection,w2_connection,KC, wKC_MBONalpha, wKC_MBONgamma,wKC_MBONgamma5, wMBONg1_MBONg5, wMBONg5_MBONa2, wMBONalpha_DAN,wMBONgamma_DAN,MBONalpha, MBONgamma, DAN,DAN_gamma_alpha,lr_wKC_gamma,lr_wKC_alpha,DAN_activation,DAN_activation_gamma_alpha,ko_trial=False):
+def single_trials_sim(num_KC,KC_baseline,odor_activation,odor,w1_init,w2_init,w3_init,w1_connection,w2_connection,KC, wKC_MBONalpha, wKC_MBONgamma,wKC_MBONgamma5, wMBONg1_MBONg5, wMBONg5_MBONa2, wMBONalpha_DAN,wMBONgamma_DAN,MBONalpha, MBONgamma, DAN,DAN_gamma_alpha, CO, lr_wKC_gamma,lr_wKC_alpha,CO_factor,DAN_activation,DAN_activation_gamma_alpha,ko_trial=False):
 
 
     '''
@@ -67,13 +75,14 @@ def single_trials_sim(num_KC,KC_baseline,odor_activation,odor,w1_init,w2_init,w3
     # compute MBON output
     if ko_trial == 'MBONgamma1':
         MBONgamma = 0
-        MBONalpha = np.dot(KC_output, wKC_MBONalpha) # was missing!!!
+        MBONalpha = np.dot(KC_output, wKC_MBONalpha)
     elif ko_trial == 'MBONalpha2':
         MBONalpha = 0
-        MBONgamma = np.dot(KC_output, wKC_MBONgamma) # was missing!!!
+        MBONgamma = np.dot(KC_output, wKC_MBONgamma)
     else:
         MBONgamma = np.dot(KC_output, wKC_MBONgamma)
         MBONalpha = np.dot(KC_output, wKC_MBONalpha)
+
     MBONgamma5 = np.dot(KC_output, wKC_MBONgamma5)
 
     # inhibition from MBONgamma1 to MBONgamma5
@@ -98,24 +107,32 @@ def single_trials_sim(num_KC,KC_baseline,odor_activation,odor,w1_init,w2_init,w3
     # compute DAN_gamma_alpha activation
     if ko_trial == 'PPLgamma2alpha1':
         DAN_gamma_alpha = 0
+        CO = CO
+        CO_act = sigmoid_CO(CO, 40)
     else:
         DAN_gamma_alpha = DAN_activation_gamma_alpha
-        #DAN_gamma_alpha = sigmoid_DAN(DAN_gamma_alpha, 30)
+        CO = CO + (DAN_gamma_alpha) * CO_factor
+        CO_act = sigmoid_CO(CO, 40)
     if DAN_gamma_alpha < 0:
         DAN_gamma_alpha = 0
 
 
-    # plasticity wKC_MBONgamma (coincidence of odor and reinforcement triggers plasticity)
+
+
+    # plasticity rules
     active_KC = np.where(KC > KC_baseline)[0]
 
     for neuron in active_KC:
+        # plasticity wKC_MBONgamma (coincidence of odor and reinforcement triggers plasticity)
         if wKC_MBONgamma[neuron] > (0 + lr_wKC_gamma * DAN):
             wKC_MBONgamma[neuron] -= lr_wKC_gamma * DAN
         else:
             wKC_MBONgamma[neuron] = 0
-        # plasticity wKC_MBONalpha (coincidence of odor (KC activation) and reinforcement (alpha DAN activation) triggers plasticity (facilitation))
-        if wKC_MBONalpha[neuron] < (2 - lr_wKC_alpha * DAN_gamma_alpha):
-            wKC_MBONalpha[neuron] += lr_wKC_alpha * DAN_gamma_alpha
+
+        # Plasticity wKC_MBONalpha (coincidence of odor (KC activation) and reinforcement (alpha DAN activation) triggers plasticity (facilitation))
+        if wKC_MBONalpha[neuron] < (2 - lr_wKC_alpha * (DAN_gamma_alpha- CO_act)):
+            wKC_MBONalpha[neuron] = max(0, wKC_MBONalpha[neuron] - lr_wKC_alpha * (DAN_gamma_alpha - CO_act))
+            #wKC_MBONalpha[neuron] += lr_wKC_alpha * DAN_gamma_alpha
         else:
             wKC_MBONalpha[neuron] = 2
 
@@ -123,6 +140,6 @@ def single_trials_sim(num_KC,KC_baseline,odor_activation,odor,w1_init,w2_init,w3
 
     weights = {'wKC_alpha': wKC_MBONalpha,'wKC_MBONgamma': wKC_MBONgamma, 'wMBONalpha_DAN': wMBONalpha_DAN}
 
-    return KC, DAN, DAN_gamma_alpha, MBONalpha, MBONgamma, MBONgamma5, weights
+    return KC, DAN, DAN_gamma_alpha, CO, MBONalpha, MBONgamma, MBONgamma5, weights
 
 
