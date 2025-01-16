@@ -24,6 +24,7 @@ def create_network(num_KC,w1_init,w2_init,w3_init,w5_init,w6_init, w7_init, w8_i
     MBONgamma5 = 0
     DAN = 0
     DAN_gamma_alpha = 0
+    DAN_CT = 0
 
     wKC_MBONalpha = np.zeros((num_KC))
     wKC_MBONgamma = np.zeros((num_KC))
@@ -43,6 +44,6 @@ def create_network(num_KC,w1_init,w2_init,w3_init,w5_init,w6_init, w7_init, w8_i
     wMBONg5_MBONa2 = w8_init
 
 
-    return KC, wKC_MBONalpha, wKC_MBONgamma, wKC_MBONgamma5,wMBONg1_MBONg5,wMBONg5_MBONa2, wMBONalpha_DAN,wMBONgamma_DAN, MBONalpha, MBONgamma, MBONgamma5, DAN, DAN_gamma_alpha
+    return KC, wKC_MBONalpha, wKC_MBONgamma, wKC_MBONgamma5,wMBONg1_MBONg5,wMBONg5_MBONa2, wMBONalpha_DAN,wMBONgamma_DAN, MBONalpha, MBONgamma, MBONgamma5, DAN, DAN_gamma_alpha, DAN_CT
 
 
