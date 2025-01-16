@@ -9,6 +9,6 @@ single_trial.py runs an individual trial of the experiment (can be specfied as f
 run.py runs single_trial.py
 
 
-visualization.py and odor_representation are can be used for figure creation 
+
 
 
