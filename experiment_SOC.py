@@ -14,7 +14,7 @@ test_all_ctl = []
 
 for i in range(len(con_timing)):
                 for e in range(len(con_neuron)):
-                    KC_rate, DAN_rate, DAN_gamma_alpha_rate, DAN_CO, MBONalpha_rate, MBONgamma_rate, MBONgamma5_rate, KC_MBONalpha_weights, KC_MBONgamma_weights, MBONalpha_DAN_weights, test_CS1, test_CS2, test_ctl = run_sim(
+                    KC_rate, DAN_rate, DAN_gamma_alpha_rate, DAN_CT, MBONalpha_rate, MBONgamma_rate, MBONgamma5_rate, KC_MBONalpha_weights, KC_MBONgamma_weights, MBONalpha_DAN_weights, test_CS1, test_CS2, test_ctl = run_sim(
                         trials_phase1=3,
                         trials_phase2=3,
                         num_KC=2000,
@@ -27,13 +27,13 @@ for i in range(len(con_timing)):
                         w3_init=0.1,
                         w5_init=0.15,
                         w6_init=0.035,
-                        w7_init=2,
-                        w8_init=2,
+                        w7_init=2, #set to 0 in model version 1, set to 2 in model version 2
+                        w8_init=2, #set to 0 in model version 1, set to 2 in model version 2
                         w1_connection=2000,
                         w2_connection=2000,
                         lr_wKC_gamma=0.0009,
                         lr_wKC_alpha=0.0009,
-                        CO_factor=0.7,
+                        CT_factor=0.7,
                         DAN_activation=20,
                         DAN_activation_gamma_alpha=20,
                         con_timing = con_timing[i],
@@ -100,7 +100,7 @@ for i in np.arange(0,len(xval)):
     ax1.text(i,0.03,u'\u2713',horizontalalignment='center')
 for i in np.arange(0,len(xval)):
     ax3.text(i,0.03,u'\u2713',horizontalalignment='center')
-model = '1' #1 = without extra mbon, 2 = with extra mbon
+model = '2' #1 = without extra mbon, 2 = with extra mbon
 if model == '2':
     for i in np.arange(0, len(xval)):
         ax2.text(i, 0.03, u'\u2713', horizontalalignment='center')
