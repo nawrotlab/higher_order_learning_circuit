@@ -4,7 +4,6 @@ from input import network_input
 
 
 def sigmoid_DAN(x,max_activation):
-    #z = np.exp(-x * 0.05)
     z = 2000*np.exp(-x * 2)
     sig_DAN = (1 / (1 + z)) * max_activation
     return sig_DAN
